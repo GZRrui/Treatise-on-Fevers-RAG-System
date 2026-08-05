@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # ============ FastAPI 后端 ============
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shanghanlun-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./storage:/app/storage
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rag-network
+
+  # ============ Nginx 反向代理（预留）============
+  nginx:
+    image: nginx:alpine
+    container_name: shanghanlun-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./storage/certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+  # ============ Redis 缓存（预留）============
+  # redis:
+  #   image: redis:alpine
+  #   container_name: shanghanlun-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - rag-network
+
+networks:
+  rag-network:
+    driver: bridge
+
+# volumes:
+#   redis-data:

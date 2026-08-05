@@ -1,0 +1,41 @@
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, Response, status
+
+from backend.app.api.dependencies import get_container
+from backend.app.container import ApplicationContainer
+
+router = APIRouter()
+
+
+def _timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+@router.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": _timestamp(),
+        "service": "shanghanlun-rag",
+        "version": "1.0.0",
+    }
+
+
+@router.get("/health/ready")
+async def readiness_check(
+    response: Response,
+    container: ApplicationContainer = Depends(get_container),
+):
+    if not container.ready:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {
+            "status": "not_ready",
+            "timestamp": _timestamp(),
+            "service": "shanghanlun-rag",
+        }
+    return {
+        "status": "ready",
+        "timestamp": _timestamp(),
+        "service": "shanghanlun-rag",
+    }
