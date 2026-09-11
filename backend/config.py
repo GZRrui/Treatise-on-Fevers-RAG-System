@@ -1,33 +1,17 @@
-"""
-后端配置
-"""
+"""Legacy backend constants backed by the phase-0 environment contract."""
 
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+from backend.app.config import get_settings
 
-load_dotenv()
 
-# 基础路径
-BASE_DIR = Path(__file__).resolve().parent.parent
-STORAGE_DIR = BASE_DIR / "storage"
+_settings = get_settings()
 
-# API 配置
 API_PREFIX = "/api/v1"
-API_TITLE = "《伤寒论》RAG 智能问答系统 API"
-API_VERSION = "1.0.0"
-
-# CORS 配置
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
-
-# 请求限制
+API_TITLE = _settings.app_name
+API_VERSION = _settings.app_version
+CORS_ORIGINS = _settings.cors_origin_list
 MAX_QUERY_LENGTH = 500
-DEFAULT_TOP_K = 5
+DEFAULT_TOP_K = _settings.top_k
 MAX_TOP_K = 20
-
-# 缓存配置
-CACHE_TTL = 300  # 5分钟
-
-# 日志配置
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-LOG_FILE = STORAGE_DIR / "logs" / "api.log"
+CACHE_TTL = 300
+LOG_LEVEL = _settings.log_level
+LOG_FILE = _settings.storage_dir / "logs" / "api.log"

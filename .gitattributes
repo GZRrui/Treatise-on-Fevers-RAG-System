@@ -1,0 +1,16 @@
+* text=auto
+
+*.in text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.txt text eol=lf
+*.vue text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+Dockerfile text eol=lf
+
+# Preserve the phase-0 source snapshots byte-for-byte on every platform.
+/data/shanghanlun_raw.json -text
+/data/shanghanlun_clean.json -text

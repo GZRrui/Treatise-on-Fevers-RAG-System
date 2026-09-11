@@ -1,72 +1,44 @@
-"""
-统一配置管理 - 所有可配置参数集中在此文件
-"""
+"""Legacy configuration constants backed by the phase-0 environment contract."""
 
-import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-# 加载 .env 文件
-load_dotenv()
+from backend.app.config import get_settings
 
-# ============ 基础路径 ============
+
+_settings = get_settings()
+
 BASE_DIR = Path(__file__).resolve().parent
-STORAGE_DIR = BASE_DIR / "storage"
-DATA_DIR = BASE_DIR / "data"
+STORAGE_DIR = _settings.storage_dir
+DATA_DIR = _settings.data_dir
 SRC_DIR = BASE_DIR / "src"
 BACKEND_DIR = BASE_DIR / "backend"
 FRONTEND_DIR = BASE_DIR / "frontend"
 
-# 确保目录存在
-STORAGE_DIR.mkdir(exist_ok=True)
-DATA_DIR.mkdir(exist_ok=True)
+STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# ============ DashScope 配置 ============
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
-OFFLINE_MODE = os.getenv("RAG_OFFLINE_MODE", "false").lower() in {"1", "true", "yes", "on"}
-if not DASHSCOPE_API_KEY and not OFFLINE_MODE:
-    raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")
-
-DASHSCOPE_API_BASE = os.getenv("DASHSCOPE_API_BASE", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-
-# ============ Embedding 配置 ============
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v3")
-EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1536"))
-
-# ============ LLM 配置 ============
-LLM_MODEL = os.getenv("LLM_MODEL", "qwen-plus")
-LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.7"))
-LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
-
-# ============ 检索配置 ============
-TOP_K = int(os.getenv("TOP_K", "5"))
-SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
-
-# ============ 数据库配置 ============
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{STORAGE_DIR}/rag_system.db")
-
-# ============ 向量存储配置 ============
-VECTOR_STORE_PATH = os.getenv("VECTOR_STORE_PATH", str(STORAGE_DIR / "vector_store.json"))
-
-# ============ FastAPI 配置 ============
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8000"))
-DEBUG = os.getenv("DEBUG", "true").lower() == "true"
-
-# ============ JWT 配置（预留）============
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-in-production")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
-
-# ============ 限流配置（预留）============
-RATE_LIMIT_REQUESTS = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
-RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
-
-# ============ 数据文件路径 ============
+DASHSCOPE_API_KEY = _settings.dashscope_api_key
+DASHSCOPE_API_BASE = _settings.dashscope_api_base
+OFFLINE_MODE = _settings.rag_offline_mode
+EMBEDDING_MODEL = _settings.embedding_model
+EMBEDDING_DIM = _settings.embedding_dim
+LLM_MODEL = _settings.llm_model
+LLM_TEMPERATURE = _settings.llm_temperature
+LLM_MAX_TOKENS = _settings.llm_max_tokens
+TOP_K = _settings.top_k
+SIMILARITY_THRESHOLD = _settings.similarity_threshold
+DATABASE_URL = _settings.resolved_database_url
+VECTOR_STORE_PATH = str(_settings.resolved_vector_store_path)
+HOST = _settings.host
+PORT = _settings.port
+DEBUG = _settings.debug
+JWT_SECRET = _settings.jwt_secret
+JWT_ALGORITHM = _settings.jwt_algorithm
+JWT_EXPIRATION_HOURS = _settings.jwt_expiration_hours
+RATE_LIMIT_REQUESTS = _settings.rate_limit_requests
+RATE_LIMIT_WINDOW = _settings.rate_limit_window
 RAW_DATA_PATH = DATA_DIR / "shanghanlun_raw.json"
 CLEAN_DATA_PATH = DATA_DIR / "shanghanlun_clean.json"
-
-# ============ 日志配置 ============
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = _settings.log_level
 LOG_FILE = STORAGE_DIR / "logs" / "app.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)

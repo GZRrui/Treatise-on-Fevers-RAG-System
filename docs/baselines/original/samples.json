@@ -1,0 +1,112 @@
+{
+  "liveness": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "status": "healthy",
+      "timestamp": "<dynamic>",
+      "service": "shanghanlun-rag",
+      "version": "1.0.0"
+    }
+  },
+  "readiness": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "status": "ready",
+      "timestamp": "<dynamic>",
+      "service": "shanghanlun-rag"
+    }
+  },
+  "index_status": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "exists": true,
+      "vector_count": 235,
+      "storage_path": "<temporary>/storage/vector_store.json",
+      "embedding_model": "text-embedding-v3",
+      "embedding_dim": 1536,
+      "status": "ready"
+    }
+  },
+  "qa_invalid": {
+    "status": 422,
+    "content_type": "application/json",
+    "body": {
+      "detail": [
+        {
+          "type": "missing",
+          "loc": [
+            "body",
+            "query"
+          ],
+          "msg": "Field required",
+          "input": {}
+        }
+      ]
+    }
+  },
+  "search_top_k_1": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "code": 200,
+      "message": "success",
+      "data": {
+        "query": "太阳病",
+        "total": 1,
+        "results": [
+          {
+            "fields": [
+              "category",
+              "chapter",
+              "formulas",
+              "id",
+              "score",
+              "section",
+              "standard_id",
+              "text"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "qa": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "code": 200,
+      "message": "success",
+      "data": {
+        "answer": "<mock-response:2000 tokens>",
+        "query": "太阳病",
+        "sources": [
+          {
+            "fields": [
+              "category",
+              "chapter",
+              "formulas",
+              "id",
+              "score",
+              "section",
+              "standard_id",
+              "text"
+            ]
+          }
+        ],
+        "source_count": 1
+      }
+    }
+  },
+  "qa_stream": {
+    "status": 200,
+    "content_type": "text/event-stream",
+    "body": {
+      "event_count": 2002,
+      "first_event": "data: <sources-event>",
+      "last_event": "data: {\"type\": \"end\"}"
+    }
+  }
+}

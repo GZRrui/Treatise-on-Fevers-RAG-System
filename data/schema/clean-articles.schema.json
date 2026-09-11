@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ragpp.local/schemas/clean-articles.schema.json",
+  "title": "Shanghanlun clean articles",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "chapter",
+      "section",
+      "category",
+      "text",
+      "standard_id",
+      "id_range",
+      "formulas"
+    ],
+    "properties": {
+      "id": {"type": "integer", "minimum": 1},
+      "chapter": {"type": "string", "minLength": 1},
+      "section": {"type": "string", "minLength": 1},
+      "category": {"type": "string", "minLength": 1},
+      "text": {"type": "string", "minLength": 1},
+      "standard_id": {"type": "integer", "minimum": 1},
+      "id_range": {"type": "string", "pattern": "^[0-9]+-[0-9]+$"},
+      "formulas": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

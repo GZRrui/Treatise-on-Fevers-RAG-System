@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "dataset_id": "shanghanlun-local-baseline",
+  "passed": true,
+  "checks": {
+    "manifest_hashes_match": true,
+    "manifest_counts_match": true,
+    "raw_ids_unique": true,
+    "clean_ids_unique": true,
+    "clean_schema_valid": true,
+    "only_known_raw_schema_error": true,
+    "exclusions_match_policy": true,
+    "clean_rebuild_matches_bytes": true
+  },
+  "authority": {
+    "local_raw_count": 236,
+    "local_clean_count": 235,
+    "confirmed_authoritative_count": null,
+    "external_claimed_count": 705,
+    "external_claim_status": "unverified-no-source-or-id-map"
+  },
+  "source": {
+    "uri": null,
+    "publisher": null,
+    "license": "unverified",
+    "upstream_version": "unverified",
+    "collected_at": null,
+    "first_repository_commit": "0e0cd51"
+  },
+  "files": {
+    "data/formula-annotations.json": {
+      "expected_sha256": "51e906ff17cb04c1b02cadaa8927d69fb9686bd6768e68d6a1a75600dd403936",
+      "actual_sha256": "51e906ff17cb04c1b02cadaa8927d69fb9686bd6768e68d6a1a75600dd403936",
+      "hash_matches": true,
+      "expected_record_count": 135,
+      "actual_record_count": 135,
+      "record_count_matches": true
+    },
+    "data/shanghanlun_raw.json": {
+      "expected_sha256": "965bb521439a58e912faaf0df66d97335ce847c628f889bdcbfde50430b54a0b",
+      "actual_sha256": "965bb521439a58e912faaf0df66d97335ce847c628f889bdcbfde50430b54a0b",
+      "hash_matches": true,
+      "expected_record_count": 236,
+      "actual_record_count": 236,
+      "record_count_matches": true
+    },
+    "data/shanghanlun_clean.json": {
+      "expected_sha256": "8fafd06f31a6c7b986b1ef5f291d1fc57932b25c1d97b8b7c93b72be42b79096",
+      "actual_sha256": "8fafd06f31a6c7b986b1ef5f291d1fc57932b25c1d97b8b7c93b72be42b79096",
+      "hash_matches": true,
+      "expected_record_count": 235,
+      "actual_record_count": 235,
+      "record_count_matches": true
+    }
+  },
+  "counts": {
+    "raw_records": 236,
+    "raw_unique_ids": 236,
+    "clean_records": 235,
+    "clean_unique_ids": 235,
+    "excluded_ids": [
+      176
+    ]
+  },
+  "schema": {
+    "raw_errors": [
+      {
+        "record_id": 176,
+        "path": [
+          "175"
+        ],
+        "message": "'category' is a required property"
+      }
+    ],
+    "clean_errors": []
+  },
+  "duplicate_text_id_groups": [
+    [
+      94,
+      173
+    ]
+  ],
+  "standard_id": {
+    "unique_value_count": 9,
+    "counts": {
+      "1": 30,
+      "31": 78,
+      "109": 8,
+      "117": 43,
+      "161": 5,
+      "166": 6,
+      "171": 29,
+      "201": 29,
+      "231": 7
+    },
+    "semantics": "chapter-range-start, not a unique article identifier"
+  },
+  "formula_review": {
+    "automated_candidate_count": 105,
+    "extracted_unique_count": 77,
+    "candidate_detection_rate": 0.6857,
+    "candidate_names_not_extracted": [
+      "一名复脉汤",
+      "不可与猪苓汤",
+      "不可与白虎汤",
+      "与五苓散",
+      "与承气汤",
+      "与禹余粮丸",
+      "与调胃承气汤",
+      "与麻黄汤",
+      "乌梅丸",
+      "五苓散",
+      "可与调胃承气汤",
+      "可与麻黄杏仁甘草石膏汤",
+      "四逆散",
+      "宜四逆汤",
+      "宜大承气汤",
+      "宜当归四逆加吴茱萸生姜汤",
+      "宜桂枝二越婢一汤",
+      "宜桂枝二麻黄一汤",
+      "宜桂枝汤",
+      "宜桂枝麻黄各半汤",
+      "宜桃核承气汤",
+      "宜理中丸",
+      "宜瓜蒂散",
+      "宜麻黄汤",
+      "恐不为大柴胡汤",
+      "攻表宜桂枝汤",
+      "救表宜桂枝汤",
+      "烧裈散",
+      "然不及汤",
+      "牡蛎泽泻散",
+      "理中丸",
+      "稍加至二十丸",
+      "麻子仁丸"
+    ],
+    "manual_accuracy_review": "pending-domain-expert-review",
+    "limitations": "Heuristic candidates are not an authoritative formula gold set."
+  },
+  "cleaning": {
+    "policy": "data/cleaning-policy.json",
+    "rebuilt_sha256": "8fafd06f31a6c7b986b1ef5f291d1fc57932b25c1d97b8b7c93b72be42b79096",
+    "byte_reproducible": true
+  }
+}

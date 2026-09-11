@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "dataset_id": "shanghanlun-local-baseline",
+  "chapter_numbering": {
+    "辨太阳病脉证并治上": {"standard_id": 1, "id_range": "1-30"},
+    "辨太阳病脉证并治中": {"standard_id": 31, "id_range": "31-108"},
+    "辨太阳病脉证并治下": {"standard_id": 109, "id_range": "109-116"},
+    "辨阳明病脉证并治": {"standard_id": 117, "id_range": "117-160"},
+    "辨少阳病脉证并治": {"standard_id": 161, "id_range": "161-165"},
+    "辨太阴病脉证并治": {"standard_id": 166, "id_range": "166-170"},
+    "辨少阴病脉证并治": {"standard_id": 171, "id_range": "171-200"},
+    "辨厥阴病脉证并治": {"standard_id": 201, "id_range": "201-230"},
+    "辨阴阳易差后劳复病脉证并治": {
+      "standard_id": 231,
+      "id_range": "231-236"
+    }
+  },
+  "excluded_records": {
+    "176": {
+      "reason": "category is null",
+      "status": "known baseline data defect",
+      "target_stage": "1.5"
+    }
+  }
+}

@@ -1,5 +1,10 @@
 .env
 .venv/
+.venv311/
+.uv-cache/
+.npm-cache/
+.python/
+.tools/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -13,6 +18,7 @@ storage/logs/
 storage/run-logs/
 storage/*.db
 storage/*.json
+storage/knowledge_bases/
 
 .test-temp/
 
