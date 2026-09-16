@@ -2,7 +2,7 @@
 
 本文件把路线图中的“模块化单体与主链路缺陷修复”落实为可执行的阶段契约。阶段1不是检索质量专项；未满足阶段0退出条件时，不得把阶段1候选代码标记为已签收。
 
-当前状态：**验收中，尚未签收**。阶段0已按 Windows 目标环境签收；公共索引构建路由、空索引隐式构建、主要 HTTP/SSE 契约缺陷和前端流解析已完成本地修复，仍待远程 Windows CI 与线上模型质量/性能预算。
+当前状态：**验收中，尚未签收**。阶段0已按 Windows 目标环境签收；公共索引构建路由、空索引隐式构建、主要 HTTP/SSE 契约缺陷和前端流解析已通过本地及远程 Windows 门禁。正式 Provider 的质量/性能/费用仍待预算批准。
 
 ## 范围
 
@@ -32,14 +32,14 @@
 
 | ID | 退出条件 | 必须证据 | 当前状态 |
 |---|---|---|---|
-| ARCH-001 | Domain/Application 不导入 FastAPI、LlamaIndex、SQLAlchemy、`src` 或文件系统；依赖只从组合根注入 | 架构依赖测试、组合根代码审查 | 本地通过 |
-| API-001A | QA/Search 的 `top_k` 经 HTTP 校验后原值到达 Retriever，返回数不超过请求值 | 端到端请求与 Fake Adapter 断言 | 本地通过 |
-| API-001B | 正常 SSE 的内容事件是增量 delta；来源、内容、结束顺序稳定，正常流恰好一个结束事件 | 累计 chunk、空流和多 chunk 测试 | 本地通过 |
-| API-001C | 客户端断开或 Provider 异常时关闭/释放迭代器；错误流不追加成功结束事件 | 断开、异常和资源释放测试 | 本地通过 |
-| API-002 | 公共 `/api/v1/index/build` 不再出现在 OpenAPI；构建仅由受控 CLI 触发，状态接口只读 | OpenAPI diff、HTTP 回归、CLI smoke test | 本地通过 |
-| API-003 | 验证错误、未就绪、冲突和内部异常使用稳定错误码、批准 HTTP 状态和统一 envelope，不泄露密钥/堆栈 | HTTP 契约测试、脱敏断言 | 本地通过；无公共构建冲突面 |
-| INDEX-001 | 空索引不会在 API 启动路径同步构建；服务返回明确 not-ready，已有旧索引仍可查询 | 空 storage 启动测试、旧索引回归 | 本地通过 |
-| HEALTH-001 | `/health` 只表示进程存活；`/health/ready` 反映依赖和索引可用性，状态码/字段稳定 | liveness/readiness 契约测试 | 本地通过 |
+| ARCH-001 | Domain/Application 不导入 FastAPI、LlamaIndex、SQLAlchemy、`src` 或文件系统；依赖只从组合根注入 | 架构依赖测试、组合根代码审查 | Windows CI 通过 |
+| API-001A | QA/Search 的 `top_k` 经 HTTP 校验后原值到达 Retriever，返回数不超过请求值 | 端到端请求与 Fake Adapter 断言 | Windows CI 通过 |
+| API-001B | 正常 SSE 的内容事件是增量 delta；来源、内容、结束顺序稳定，正常流恰好一个结束事件 | 累计 chunk、空流和多 chunk 测试 | Windows CI 通过 |
+| API-001C | 客户端断开或 Provider 异常时关闭/释放迭代器；错误流不追加成功结束事件 | 断开、异常和资源释放测试 | Windows CI 通过 |
+| API-002 | 公共 `/api/v1/index/build` 不再出现在 OpenAPI；构建仅由受控 CLI 触发，状态接口只读 | OpenAPI diff、HTTP 回归、CLI smoke test | Windows CI 通过 |
+| API-003 | 验证错误、未就绪、冲突和内部异常使用稳定错误码、批准 HTTP 状态和统一 envelope，不泄露密钥/堆栈 | HTTP 契约测试、脱敏断言 | Windows CI 通过；无公共构建冲突面 |
+| INDEX-001 | 空索引不会在 API 启动路径同步构建；服务返回明确 not-ready，已有旧索引仍可查询 | 空 storage 启动测试、旧索引回归 | Windows CI 通过 |
+| HEALTH-001 | `/health` 只表示进程存活；`/health/ready` 反映依赖和索引可用性，状态码/字段稳定 | liveness/readiness 契约测试 | Windows CI 通过 |
 | COMPAT-001 | 除批准修复和移除公共构建路由外，OpenAPI、字段和同一输入的检索/问答结果在允许误差内兼容 | 阶段0样例对比、OpenAPI diff、质量/性能报告 | 部分通过；线上质量/性能/费用未验证 |
 
 所有矩阵项必须有可追溯测试输出；仅代码审查或单元测试通过不能关闭端到端契约项。
@@ -68,6 +68,7 @@ git diff --check
 - 前端 3 项 SSE 解析测试、TypeScript typecheck 和 Vite build 通过。
 - 测试夹具和 Pytest basetemp 均固定在仓库内 `.test-temp`，不依赖 Windows 系统临时目录权限。
 - 未调用真实模型、未覆盖真实索引、未产生 Provider 费用。
+- GitHub Actions 运行 `35080426633`：Windows baseline 与 frontend jobs 通过；supply-chain 完成扫描和证据上传后，仅由 `SEC-001` 的无修复 NLTK 漏洞按设计阻断。
 
 ## 退出与回滚
 
