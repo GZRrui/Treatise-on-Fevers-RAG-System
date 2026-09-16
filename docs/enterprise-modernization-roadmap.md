@@ -33,7 +33,7 @@
 - 阶段0分支：`codex/phase-0`；基线提交仍为 `37d2c122cee1956c83d99f64996b4f15976053d4`，阶段0资产已形成独立提交并推送。
 - 高阶原型只存在于 `codex/pre-phase-high-order-snapshot`（`94e22e0`），不得把该快照当作阶段1已验收代码。
 - Python 直接依赖和开发依赖分别由 `requirements.in`、`requirements-dev.in` 声明，并由带哈希的 `requirements.txt`、`requirements-dev.txt` 锁定。
-- 项目级运行时已固定为 Python `3.11.15`、Node.js `22.17.0` 和 npm `10.9.2`；这是本仓库当前基线，不再使用未验证的 Node 20.x 作为验收版本。
+- 项目级运行时已固定为 Python `3.11`（本机 `3.11.15`、GitHub Windows runner `3.11.9`）、Node.js `22.17.0` 和 npm `10.9.2`；这是本仓库当前 Windows 基线，不再使用未验证的 Node 20.x 作为验收版本。
 - dev/test/prod 环境示例和配置矩阵已纳入基线；当前只支持并验收 Windows，跨平台一致性不在范围内。
 
 ### 3.2 数据初审
@@ -159,7 +159,7 @@
 
 #### P0-A 版本与依赖锁定
 
-- 固定 Python `3.11.15`、Node.js `22.17.0` 和 npm `10.9.2`，并在 CI 中逐项校验版本。
+- 固定 Python `3.11` 兼容系列（本机 `3.11.15`、Windows CI `3.11.9`）、Node.js `22.17.0` 和 npm `10.9.2`，并在各自环境中校验版本。
 - 将 Python 直接依赖与开发依赖分离。
 - 使用 `pip-compile --generate-hashes` 或等价工具生成锁文件。
 - 前端统一使用 `npm ci`，验证 lockfile 无漂移。

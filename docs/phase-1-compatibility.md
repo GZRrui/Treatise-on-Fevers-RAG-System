@@ -1,6 +1,6 @@
 # 阶段 1 兼容性与 OpenAPI 差异
 
-复核日期：2026-09-16。目标环境：Windows、Python 3.11.15、Node.js 22.17.0、npm 10.9.2。
+复核日期：2026-09-16。目标环境：Windows、Python 3.11（本机 3.11.15，GitHub Windows runner 3.11.9）、Node.js 22.17.0、npm 10.9.2。
 
 ## 已批准的行为差异
 

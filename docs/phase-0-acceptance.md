@@ -29,7 +29,7 @@ Push-Location frontend; npm ci --ignore-scripts; npm run typecheck; npm run buil
 
 | 门禁 | 状态 | 证据 |
 |---|---|---|
-| 运行时及锁文件 | 通过 | Windows 下 Python `3.11.15`、Node `22.17.0`、npm `10.9.2`，按锁文件安装成功 |
+| 运行时及锁文件 | 通过 | Windows 本机 Python `3.11.15`；GitHub Windows runner 固定其可安装的 `3.11.9`；Node `22.17.0`、npm `10.9.2`，按锁文件安装成功 |
 | 环境契约 | 通过 | `docs/environment-matrix.md`、3 项配置契约测试 |
 | 数据完整性 | 通过 | `docs/baselines/data-integrity.*`，236/235/ID 176/705 待证口径已解释 |
 | 原始系统快照 | 通过 | `docs/baselines/original/`，重复运行匹配原始提交 |
