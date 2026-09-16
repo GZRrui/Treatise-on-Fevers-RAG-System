@@ -66,6 +66,7 @@ git diff --check
 - `ruff check backend tests scripts` 从阶段0的 169 项遗留问题清零并通过；中文全角标点通过 `allowed-confusables` 明确列举，不关闭 Ruff 规则。
 - OpenAPI 仅移除批准的 `POST /api/v1/index/build`；详见 `docs/phase-1-compatibility.md`。
 - 前端 3 项 SSE 解析测试、TypeScript typecheck 和 Vite build 通过。
+- 测试夹具和 Pytest basetemp 均固定在仓库内 `.test-temp`，不依赖 Windows 系统临时目录权限。
 - 未调用真实模型、未覆盖真实索引、未产生 Provider 费用。
 
 ## 退出与回滚

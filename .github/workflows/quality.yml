@@ -33,7 +33,7 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q backend config.py evaluation scripts src tests
       - name: Run offline tests
-        run: python -m pytest -q --basetemp .test-temp/pytest-phase0
+        run: python -m pytest -q --basetemp .test-temp/pytest-phase1
       - name: Run strict type checks
         run: python -m mypy
       - name: Run lint checks

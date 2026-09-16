@@ -5,7 +5,9 @@ import tempfile
 from pathlib import Path
 
 _project_root = Path(__file__).resolve().parents[1]
-_test_root = Path(tempfile.mkdtemp(prefix="ragpp-tests-"))
+_test_temp_root = _project_root / ".test-temp"
+_test_temp_root.mkdir(parents=True, exist_ok=True)
+_test_root = Path(tempfile.mkdtemp(prefix="ragpp-tests-", dir=_test_temp_root))
 _test_data = _test_root / "data"
 _test_data.mkdir()
 atexit.register(shutil.rmtree, _test_root, ignore_errors=True)
