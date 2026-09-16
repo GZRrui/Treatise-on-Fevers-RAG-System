@@ -1,5 +1,5 @@
 """数据库层模块"""
-from .connection import get_db, Database
+from .connection import Database, get_db
 from .models import QueryLog
 
-__all__ = ["get_db", "Database", "QueryLog"]
+__all__ = ["Database", "QueryLog", "get_db"]

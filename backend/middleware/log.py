@@ -3,11 +3,11 @@
 记录所有请求的详细信息
 """
 
-from fastapi import Request
-from datetime import datetime
+import json
 import logging
 import time
-import json
+
+from fastapi import Request
 
 logger = logging.getLogger(__name__)
 

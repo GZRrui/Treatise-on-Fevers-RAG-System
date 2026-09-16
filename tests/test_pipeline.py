@@ -4,7 +4,6 @@
 """
 
 import sys
-import pytest
 from pathlib import Path
 
 # 添加项目根目录到 Python 路径
@@ -123,7 +122,7 @@ def test_qa_engine():
     assert len(result["answer"]) > 0
     assert "sources" in result
 
-    print(f"✅ 问答引擎测试通过")
+    print("✅ 问答引擎测试通过")
     print(f"   回答长度: {len(result['answer'])} 字符")
     print(f"   引用条文: {len(result.get('sources', []))} 条")
 

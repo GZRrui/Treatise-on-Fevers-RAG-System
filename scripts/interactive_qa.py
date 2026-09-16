@@ -3,8 +3,8 @@
 在终端中与《伤寒论》进行问答
 """
 
-import sys
 import logging
+import sys
 
 # 配置日志
 logging.basicConfig(
@@ -83,7 +83,10 @@ def main():
                 if result.get("sources"):
                     print("\n📚 引用条文:")
                     for i, source in enumerate(result["sources"], 1):
-                        print(f"   [{i}] {source['chapter']} 第{source['standard_id']}条")
+                        print(
+                            f"   [{i}] {source['chapter']} "
+                            f"第{source['standard_id']}条"
+                        )
                         print(f"       {source['text'][:80]}...")
 
                 print("\n" + "-" * 60)

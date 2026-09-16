@@ -2,7 +2,6 @@
 
 from backend.app.config import get_settings
 
-
 _settings = get_settings()
 
 API_PREFIX = "/api/v1"

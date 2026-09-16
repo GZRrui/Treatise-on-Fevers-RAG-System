@@ -3,10 +3,10 @@
 基于 Redis 的令牌桶限流
 """
 
-from fastapi import Request, HTTPException
-from typing import Dict, Optional
-import time
 import logging
+import time
+
+from fastapi import HTTPException, Request
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class RateLimitMiddleware:
         self,
         requests_per_minute: int = 60,
         requests_per_hour: int = 1000,
-        ip_whitelist: list = None,
+        ip_whitelist: list[str] | None = None,
     ):
         """
         Args:
@@ -36,7 +36,7 @@ class RateLimitMiddleware:
         self.ip_whitelist = ip_whitelist or []
 
         # 内存存储（生产环境应使用 Redis）
-        self._request_counts: Dict[str, list] = {}
+        self._request_counts: dict[str, list] = {}
 
     async def __call__(self, request: Request, call_next):
         """中间件调用"""
