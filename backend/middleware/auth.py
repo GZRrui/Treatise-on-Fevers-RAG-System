@@ -3,10 +3,10 @@ JWT 认证中间件（预留）
 用于企业级系统的用户认证
 """
 
-from fastapi import Request, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Optional, List
 import logging
+
+from fastapi import Request
+from fastapi.security import HTTPBearer
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class JWTAuthMiddleware:
         self,
         secret_key: str = "your-secret-key",
         algorithm: str = "HS256",
-        excluded_paths: List[str] = None,
+        excluded_paths: list[str] | None = None,
     ):
         """
         Args:
@@ -40,7 +40,6 @@ class JWTAuthMiddleware:
             "/health",
             "/docs",
             "/openapi.json",
-            "/api/v1/index/build",  # 索引构建不需要认证
         ]
 
     async def __call__(self, request: Request, call_next):
@@ -55,8 +54,6 @@ class JWTAuthMiddleware:
             # 可选：允许匿名访问或返回错误
             # return HTTPException(status_code=401, detail="未提供认证令牌")
             return await call_next(request)
-
-        token = auth_header.split("Bearer ")[1]
 
         try:
             # 验证 JWT token
@@ -94,7 +91,7 @@ def create_access_token(data: dict, secret_key: str, algorithm: str = "HS256") -
     return f"{header}.{payload}.{signature}"
 
 
-async def verify_token(token: str, secret_key: str) -> Optional[dict]:
+async def verify_token(token: str, secret_key: str) -> dict | None:
     """
     验证 JWT token
 

@@ -1,23 +1,26 @@
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any
 
 import httpx
 import pytest
 
 from backend.app.application.qa_service import QAService
 from backend.app.application.search_service import SearchService
+from backend.app.domain.qa import AnswerResult, StreamEvent, StreamEventType
+from backend.app.domain.retrieval import SearchResult
 from backend.app.main import create_app
 
 
 class FakeEngine:
     def __init__(self):
-        self.calls: List[Dict[str, Any]] = []
+        self.calls: list[dict[str, Any]] = []
 
     async def answer(
         self,
         query: str,
         top_k: int,
         include_sources: bool,
-    ) -> Dict[str, Any]:
+    ) -> AnswerResult:
         self.calls.append(
             {
                 "method": "answer",
@@ -26,19 +29,14 @@ class FakeEngine:
                 "include_sources": include_sources,
             }
         )
-        return {
-            "answer": "test answer",
-            "query": query,
-            "sources": [],
-            "source_count": 0,
-        }
+        return AnswerResult(answer="test answer", query=query)
 
     def stream_answer(
         self,
         query: str,
         top_k: int,
         include_sources: bool,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> AsyncIterator[StreamEvent]:
         self.calls.append(
             {
                 "method": "stream",
@@ -49,7 +47,12 @@ class FakeEngine:
         )
 
         async def generate():
-            yield {"type": "content", "data": "test"}
+            yield StreamEvent(type=StreamEventType.CONTENT, content="test")
+            yield StreamEvent(
+                type=StreamEventType.END,
+                content="test",
+                query=query,
+            )
 
         return generate()
 
@@ -57,8 +60,8 @@ class FakeEngine:
         self,
         query: str,
         top_k: int,
-        category: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        category: str | None = None,
+    ) -> SearchResult:
         self.calls.append(
             {
                 "method": "search",
@@ -67,7 +70,7 @@ class FakeEngine:
                 "category": category,
             }
         )
-        return []
+        return SearchResult(query=query, items=())
 
 
 @pytest.mark.asyncio
@@ -77,7 +80,7 @@ async def test_qa_service_forwards_use_case_parameters():
 
     result = await service.answer("太阳病", top_k=7, include_sources=False)
 
-    assert result["answer"] == "test answer"
+    assert result.answer == "test answer"
     assert engine.calls == [
         {
             "method": "answer",
@@ -166,6 +169,6 @@ def test_domain_and_application_do_not_import_frameworks():
     forbidden = ("fastapi", "llama_index", "sqlalchemy", "src.")
 
     for package in ("domain", "application"):
-        for path in (app_root / package).glob("*.py"):
+        for path in (app_root / package).rglob("*.py"):
             content = path.read_text(encoding="utf-8")
             assert not any(name in content for name in forbidden), path

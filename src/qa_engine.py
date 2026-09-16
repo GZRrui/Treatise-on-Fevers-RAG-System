@@ -30,6 +30,7 @@ class QAEngine:
         max_tokens: int = LLM_MAX_TOKENS,
         top_k: int = 5,
         similarity_threshold: float = 0.6,
+        llm: Any = None,
     ):
         """
         初始化问答引擎
@@ -47,10 +48,8 @@ class QAEngine:
         self.similarity_threshold = similarity_threshold
 
         # 初始化 LLM
-        self.llm = create_llm(
-            model=llm_model,
-            temperature=temperature,
-            max_tokens=max_tokens,
+        self.llm = llm or create_llm(
+            model=llm_model, temperature=temperature, max_tokens=max_tokens
         )
 
         # 初始化检索器
@@ -227,14 +226,27 @@ class QAEngine:
 
         # 5. 流式返回
         full_response = ""
-        async for chunk in stream:
-            content = chunk.message.content
-            if content:
-                full_response += content
-                yield {
-                    "type": "content",
-                    "data": content,
-                }
+        previous_content = ""
+        try:
+            async for chunk in stream:
+                explicit_delta = getattr(chunk, "delta", None)
+                content = chunk.message.content or ""
+                if explicit_delta is not None:
+                    delta = str(explicit_delta)
+                    previous_content = content or previous_content + delta
+                elif content.startswith(previous_content):
+                    delta = content[len(previous_content):]
+                    previous_content = content
+                else:
+                    delta = content
+                    previous_content += content
+                if delta:
+                    full_response += delta
+                    yield {"type": "content", "data": delta}
+        finally:
+            close = getattr(stream, "aclose", None)
+            if close is not None:
+                await close()
 
         # 返回完整回答
         yield {

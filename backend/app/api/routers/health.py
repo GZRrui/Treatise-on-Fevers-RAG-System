@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, status
 
@@ -9,11 +10,11 @@ router = APIRouter()
 
 
 def _timestamp() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @router.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     return {
         "status": "healthy",
         "timestamp": _timestamp(),
@@ -25,8 +26,8 @@ async def health_check():
 @router.get("/health/ready")
 async def readiness_check(
     response: Response,
-    container: ApplicationContainer = Depends(get_container),
-):
+    container: Annotated[ApplicationContainer, Depends(get_container)],
+) -> dict[str, str]:
     if not container.ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return {

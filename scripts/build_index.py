@@ -3,8 +3,8 @@
 首次运行时执行此脚本构建索引
 """
 
-import sys
 import logging
+import sys
 
 # 配置日志
 logging.basicConfig(
@@ -38,7 +38,7 @@ def main():
         # 3. 构建索引
         logger.info("\n📦 步骤2: 构建向量索引")
         indexer = Indexer()
-        index = indexer.build_index(clean_data, force_rebuild=True)
+        indexer.build_index(clean_data, force_rebuild=True)
 
         # 4. 输出索引信息
         info = indexer.get_index_info()

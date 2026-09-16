@@ -1,4 +1,9 @@
-from typing import Any, AsyncIterator, Dict, List, Optional, Protocol
+from collections.abc import AsyncIterator
+from typing import Protocol
+
+from backend.app.domain.indexing import IndexStatus
+from backend.app.domain.qa import AnswerResult, StreamEvent
+from backend.app.domain.retrieval import SearchResult
 
 
 class AnswerEnginePort(Protocol):
@@ -7,7 +12,7 @@ class AnswerEnginePort(Protocol):
         query: str,
         top_k: int,
         include_sources: bool,
-    ) -> Dict[str, Any]:
+    ) -> AnswerResult:
         """Generate a grounded answer for a query."""
 
     def stream_answer(
@@ -15,7 +20,7 @@ class AnswerEnginePort(Protocol):
         query: str,
         top_k: int,
         include_sources: bool,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> AsyncIterator[StreamEvent]:
         """Stream a grounded answer for a query."""
 
 
@@ -24,17 +29,14 @@ class SearchEnginePort(Protocol):
         self,
         query: str,
         top_k: int,
-        category: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        category: str | None = None,
+    ) -> SearchResult:
         """Search the knowledge base."""
 
 
-class IndexBuilderPort(Protocol):
-    def load_or_build(self) -> Any:
-        """Load a usable index or build one when necessary."""
+class IndexReaderPort(Protocol):
+    def load_existing(self) -> object:
+        """Load an existing index without rebuilding it."""
 
-    def build(self, force: bool = False) -> Any:
-        """Build or load an index according to the requested policy."""
-
-    def status(self) -> Dict[str, Any]:
-        """Return index metadata for health and administration APIs."""
+    def status(self) -> IndexStatus:
+        """Return read-only index metadata."""

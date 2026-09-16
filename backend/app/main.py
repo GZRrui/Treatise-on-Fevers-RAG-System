@@ -1,8 +1,9 @@
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     container: ApplicationContainer = app.state.container
     logger.info("Starting Shanghanlun RAG service")
     await container.initialize()
@@ -25,7 +26,7 @@ async def lifespan(app: FastAPI):
         logger.info("Stopping Shanghanlun RAG service")
 
 
-def create_app(container: Optional[ApplicationContainer] = None) -> FastAPI:
+def create_app(container: ApplicationContainer | None = None) -> FastAPI:
     settings = get_settings()
     logging.basicConfig(
         level=logging.DEBUG if settings.debug else logging.INFO,
@@ -53,7 +54,10 @@ def create_app(container: Optional[ApplicationContainer] = None) -> FastAPI:
     application.include_router(index.router, prefix="/api/v1", tags=["索引管理"])
 
     @application.exception_handler(ApplicationNotReadyError)
-    async def not_ready_handler(request: Request, exc: ApplicationNotReadyError):
+    async def not_ready_handler(
+        request: Request,
+        exc: ApplicationNotReadyError,
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=503,
             content={
@@ -63,8 +67,25 @@ def create_app(container: Optional[ApplicationContainer] = None) -> FastAPI:
             },
         )
 
+    @application.exception_handler(RequestValidationError)
+    async def validation_error_handler(
+        request: Request,
+        exc: RequestValidationError,
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "code": "VALIDATION_ERROR",
+                "message": "请求参数无效",
+                "detail": exc.errors() if settings.debug else None,
+            },
+        )
+
     @application.exception_handler(Exception)
-    async def unhandled_exception_handler(request: Request, exc: Exception):
+    async def unhandled_exception_handler(
+        request: Request,
+        exc: Exception,
+    ) -> JSONResponse:
         logger.exception("Unhandled request error", exc_info=exc)
         return JSONResponse(
             status_code=500,
