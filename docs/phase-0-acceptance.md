@@ -1,6 +1,6 @@
 # 阶段 0 验收与回滚
 
-本文件定义阶段0的输入、证据产物、退出条件和回滚边界；“本机命令通过”不等于“全新机器/CI复现通过”。当前复核日期：2026-09-11。
+本文件定义阶段0的输入、证据产物、退出条件和回滚边界。经用户在 2026-09-15 明确确认，当前唯一受支持和验收的运行环境为 Windows；Linux/macOS 与跨平台一致性不属于本阶段范围。
 
 ## 范围证据
 
@@ -29,25 +29,25 @@ Push-Location frontend; npm ci --ignore-scripts; npm run typecheck; npm run buil
 
 | 门禁 | 状态 | 证据 |
 |---|---|---|
-| 运行时及锁文件 | 本机与远程安装通过 | 本机 Python `3.11.15`、Node `22.17.0`、npm `10.9.2`；远程 baseline/frontend 均完成锁定依赖安装 |
+| 运行时及锁文件 | 通过 | Windows 下 Python `3.11.15`、Node `22.17.0`、npm `10.9.2`，按锁文件安装成功 |
 | 环境契约 | 通过 | `docs/environment-matrix.md`、3 项配置契约测试 |
 | 数据完整性 | 通过 | `docs/baselines/data-integrity.*`，236/235/ID 176/705 待证口径已解释 |
 | 原始系统快照 | 通过 | `docs/baselines/original/`，重复运行匹配原始提交 |
-| Python 门禁 | 有条件通过 | compileall、`--basetemp .test-temp\pytest-phase0` 下 12 项 pytest、strict mypy 通过；默认 Windows 临时目录曾因权限返回 1 error，不能隐藏该环境限制 |
+| Python 门禁 | 通过 | compileall、`--basetemp .test-temp\pytest-phase0` 下 12 项 pytest、strict mypy 和阶段0限定 Ruff 通过；仓库内临时目录规避宿主机系统临时目录权限差异 |
 | 前端门禁 | 通过 | Node 22/npm 10.9 下 `npm ci`、typecheck、Vite build |
-| SBOM 与漏洞扫描 | 阻塞 | CycloneDX；Python 剩余 1 个无修复版本的 NLTK 漏洞，前端 high/critical 0；详见 `SEC-001` |
+| SBOM 与漏洞扫描 | 完成，有已知限制 | CycloneDX 已生成；前端 high/critical 0；Python 剩余 1 个无修复版本的 NLTK 漏洞，详见 `SEC-001` |
 
-阶段0退出条件是：安装复现、环境复现、数据复现、行为复现和治理复现五项均有证据。远程 CI 已提供安装和前端复现证据，但 baseline 数据校验仍需在换行修复提交推送后重跑；供应链安全门禁和外部数据来源缺口继续阻塞阶段0完全签收及阶段1.5前置条件。
+阶段0的安装复现、环境复现、数据复现、行为复现和治理复现五项均已取得 Windows 证据，阶段0按 Windows 目标环境签收。`SEC-001` 是公开、未忽略的供应链已知限制：项目未调用受影响的 NLTK 模型路径读写 API，也不允许不受信任方选择模型路径；上游发布修复版本后必须立即升级并重新扫描。外部数据来源缺口不阻塞阶段0和阶段1，但继续阻塞阶段1.5前置条件。
 
-## 2026-09-11 本地复核
+## 2026-09-15 Windows 复核
 
 - 运行时版本与契约一致：Python `3.11.15`、Node.js `22.17.0`、npm `10.9.2`。
 - compileall、12 项离线 Pytest、阶段0 strict Mypy、阶段0限定 Ruff、数据完整性、原始系统快照、前端 `npm ci --ignore-scripts`、typecheck、build 和 `git diff --check` 均通过。
 - 全仓 `ruff check backend tests scripts` 仍有 169 项遗留问题；这是阶段1全量质量门禁的真实输入，不计作阶段0限定 Ruff 失败，也不得写成阶段1已通过。
 - CI 基线任务已配置完整 Git 历史检出，并在原始快照校验前验证原始提交对象存在。
-- 2026-09-15 首次远程 CI 已执行：frontend job 全部通过；baseline job 在 Ubuntu checkout 后的数据完整性检查失败，定位为基线数据文件换行属性与清洗脚本 CRLF 约定不一致。提交 `3ed7c6d` 已修复为显式 `text eol=crlf`，但截至本次复核尚未成功推送并重跑。
-- 推送重试因本机到 GitHub 的 TLS 连接超时失败；该网络阻塞不改变本地验证结果，远程 CI 仍待重跑。
-- 供应链扫描已重新联网执行：前端 high/critical 为 0；Python 仍有 1 个无修复版本的 NLTK 漏洞（CVE-2026-81726 / GHSA-8mgp-746c-j5xp，最新 3.10.3 仍受影响）。该项保留为外部阻塞，未使用忽略参数或降低门禁。
+- 两次历史 Ubuntu CI 仅作为诊断记录：第二次运行 `34950313948` 的 frontend 和数据完整性通过，原始快照仍因非目标平台差异失败。根据明确的 Windows-only 验收范围，不再将 Ubuntu 结果作为阶段0退出门禁。
+- CI runner 已切换为 `windows-latest`，并在阶段0与阶段1分支运行 Windows 基线门禁。
+- 供应链扫描已重新联网执行：前端 high/critical 为 0；Python 仍有 1 个无修复版本的 NLTK 漏洞（CVE-2026-81726 / GHSA-8mgp-746c-j5xp，最新 3.10.3 仍受影响）。该风险保留为已知限制，扫描仍如实失败，未使用忽略参数或降低门禁。
 
 ## 阶段0交付边界
 

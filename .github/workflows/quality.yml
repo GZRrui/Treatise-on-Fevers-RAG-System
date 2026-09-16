@@ -3,7 +3,7 @@ name: phase-0-quality
 on:
   pull_request:
   push:
-    branches: [main, "codex/phase-0"]
+    branches: [main, "codex/phase-0", "codex/phase-1"]
 
 permissions:
   contents: read
@@ -14,7 +14,7 @@ env:
 
 jobs:
   baseline:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +32,7 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q backend config.py evaluation scripts src tests
       - name: Run offline tests
-        run: python -m pytest -q
+        run: python -m pytest -q --basetemp .test-temp/pytest-phase0
       - name: Run strict type checks
         run: python -m mypy
       - name: Run phase-0 lint checks
@@ -48,12 +48,12 @@ jobs:
       - name: Verify data integrity baseline
         run: python scripts/data_quality.py
       - name: Verify original baseline commit is available
-        run: git cat-file -e 37d2c122cee1956c83d99f64996b4f15976053d4^{commit}
+        run: git cat-file -e "37d2c122cee1956c83d99f64996b4f15976053d4^{commit}"
       - name: Verify original-system snapshot
         run: python scripts/capture_phase0_baseline.py
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: frontend
@@ -65,13 +65,13 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - name: Verify npm runtime
-        run: test "$(npm --version)" = "10.9.2"
-      - run: npm ci --ignore-scripts
-      - run: npm run typecheck
-      - run: npm run build
+        run: if ((npm.cmd --version).Trim() -ne "10.9.2") { exit 1 }
+      - run: npm.cmd ci --ignore-scripts
+      - run: npm.cmd run typecheck
+      - run: npm.cmd run build
 
   supply-chain:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
