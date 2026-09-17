@@ -28,7 +28,16 @@ QA/Search 的请求字段和成功响应字段保持兼容，`top_k` 现在有�
 - `frontend/tests/sse.test.mjs`：POST SSE 分帧、跨 chunk 拼接、CRLF、单结束事件和非法 payload。
 - OpenAPI 操作差异：仅移除 `POST /api/v1/index/build`，无新增公共操作。
 
-## 尚未关闭
+## 正式 Provider 兼容性
+
+- 2026-09-17 在 Windows、Python 3.11.15 上使用 `text-embedding-v3`、`qwen-plus` 和现有235文档 generation 完成真实调用。
+- 28条检索全部返回成功，P50/P95 为 `227.715/252.575 ms`；3条 QA 全部返回成功，P50/P95 为 `12050.421/13782.495 ms`。
+- QA/Search 公共字段、`top_k` 和成功 envelope 与阶段1契约一致；没有发现因分层改造引入的线上错误。
+- 检索质量为 `Recall@5 = 0.2971`、`MRR@10 = 0.3304`。该结果高于阶段0正式离线 Mock 基线的 `0/0`，但低于阶段1.5门槛，已作为下一阶段基线保留。
+- 证据和调用用量见 `docs/baselines/phase-1/provider-validation.json`。
+
+## 已知限制
 
 - 前端 UI 当前仍默认使用非流式 QA；`askStream` 已改为 POST fetch 流解析并完成独立解析测试，后续启用 UI 流式交互时无需改变后端契约。
-- 未调用真实 DashScope Provider，因此没有新的线上质量、P50/P95 或费用数据；在获得明确预算前不能将该项写为通过。
+- 默认根 Artifact 并非本次正式 Provider 兼容性证据使用的索引；在线运行必须显式配置已验证 generation 路径。阶段1不提前实现阶段2的 active generation/CAS 解析。
+- DashScope 响应只返回 token 用量，不返回最终账单金额；本轮在已批准的人民币1元以内调用预算中执行，不声称已读取账单中心。

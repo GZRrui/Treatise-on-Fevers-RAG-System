@@ -2,7 +2,7 @@
 
 本文件把路线图中的“模块化单体与主链路缺陷修复”落实为可执行的阶段契约。阶段1不是检索质量专项；未满足阶段0退出条件时，不得把阶段1候选代码标记为已签收。
 
-当前状态：**验收中，尚未签收**。阶段0已按 Windows 目标环境签收；公共索引构建路由、空索引隐式构建、主要 HTTP/SSE 契约缺陷和前端流解析已通过本地及远程 Windows 门禁。正式 Provider 的质量/性能/费用仍待预算批准。
+当前状态：**已于 2026-09-17 按 Windows 目标环境签收**。阶段1 Windows 门禁与正式 DashScope Provider 兼容性证据已齐备；检索质量差距转入阶段1.5，不改写为已达标。
 
 ## 范围
 
@@ -40,7 +40,7 @@
 | API-003 | 验证错误、未就绪、冲突和内部异常使用稳定错误码、批准 HTTP 状态和统一 envelope，不泄露密钥/堆栈 | HTTP 契约测试、脱敏断言 | Windows CI 通过；无公共构建冲突面 |
 | INDEX-001 | 空索引不会在 API 启动路径同步构建；服务返回明确 not-ready，已有旧索引仍可查询 | 空 storage 启动测试、旧索引回归 | Windows CI 通过 |
 | HEALTH-001 | `/health` 只表示进程存活；`/health/ready` 反映依赖和索引可用性，状态码/字段稳定 | liveness/readiness 契约测试 | Windows CI 通过 |
-| COMPAT-001 | 除批准修复和移除公共构建路由外，OpenAPI、字段和同一输入的检索/问答结果在允许误差内兼容 | 阶段0样例对比、OpenAPI diff、质量/性能报告 | 部分通过；线上质量/性能/费用未验证 |
+| COMPAT-001 | 除批准修复和移除公共构建路由外，OpenAPI、字段和同一输入的检索/问答结果在允许误差内兼容 | 阶段0样例对比、OpenAPI diff、质量/性能报告 | Windows 签收通过；正式 Provider 低质量基线转入阶段1.5 |
 
 所有矩阵项必须有可追溯测试输出；仅代码审查或单元测试通过不能关闭端到端契约项。
 
@@ -70,8 +70,18 @@ git diff --check
 - 未调用真实模型、未覆盖真实索引、未产生 Provider 费用。
 - GitHub Actions 运行 `35080426633`：Windows baseline 与 frontend jobs 通过；supply-chain 完成扫描和证据上传后，仅由 `SEC-001` 的无修复 NLTK 漏洞按设计阻断。
 
+## 2026-09-17 正式 Provider 证据
+
+- 运行环境：Windows、`.venv311` Python `3.11.15`，`text-embedding-v3`（1536维）和 `qwen-plus`。
+- 使用现有 immutable generation `20260805T062851Z-63195cbd0b8d`（235个文档）；通过进程级 `VECTOR_STORE_PATH` 显式选择，未重建索引、未修改 `active.json`、未覆盖 `storage/`。
+- 28条黄金查询：`Recall@5 = 0.2971`、`MRR@10 = 0.3304`、重复结果率 `0`、hard-negative误报率 `0`、错误率 `0`、检索 P50/P95 为 `227.715/252.575 ms`。
+- 3条真实 QA：3/3 返回 HTTP 200，错误率 `0`，P50/P95 为 `12050.421/13782.495 ms`；输入/输出/总 token 为 `964/1224/2188`。
+- 被接受的测量运行包含31次 embedding 调用（28条质量查询及3次 QA 检索），共449 tokens；调用规模受批准的人民币1元以内预算约束。DashScope 响应提供 token 用量但不提供账单金额，因此没有把估算写成实际账单。
+- 默认根 Artifact `storage/vector_store.json` 与正式 Provider 查询向量不匹配，诊断结果为 `Recall@5 = 0`、`MRR@10 = 0`。线上验证必须显式选择带 manifest 的 generation；自动解析 active generation 属于阶段2 generation/CAS 工作，不在阶段1越界实现。
+- 完整脱敏证据见 `docs/baselines/phase-1/provider-validation.json`；没有保存回答正文、API Key 或 Provider 原始响应。
+
 ## 退出与回滚
 
-阶段1只有在验收矩阵全部通过、阶段0质量和性能指标没有无解释退化、且 OpenAPI diff 获得批准后才能签收，并将 `API-001`、`API-002`、`INDEX-001` 台账状态更新为已关闭。否则保持“未关闭”，不得进入阶段1.5。
+阶段1验收矩阵已经全部通过；相对阶段0正式离线基线没有无解释退化，批准的 OpenAPI 差异仅为移除公共索引构建路由。`API-001`、`API-002`、`INDEX-001` 已关闭，项目进入阶段1.5前置条件核验和检索质量专项。阶段1.5的 `Recall@5 >= 0.80` 与 `MRR@10 >= 0.65` 尚未达到，不属于本次签收结论。
 
 阶段1不迁移或覆盖真实数据，不切换 active 索引，不引入不可逆数据库变更。回滚时保留阶段0基线和快照，将阶段1变更作为独立提交撤回或切回阶段0分支；切换前必须保存未提交工作区，禁止强制重置。运行时索引和数据库不属于代码回滚范围，任何删除或迁移都需要单独备份和审批。
