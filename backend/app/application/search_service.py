@@ -1,6 +1,6 @@
-from typing import Any, Dict, List, Optional
 
 from backend.app.domain.ports import SearchEnginePort
+from backend.app.domain.retrieval import SearchResult
 
 
 class SearchService:
@@ -13,8 +13,8 @@ class SearchService:
         self,
         query: str,
         top_k: int,
-        category: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        category: str | None = None,
+    ) -> SearchResult:
         return self._engine.search(
             query=query,
             top_k=top_k,

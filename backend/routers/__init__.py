@@ -1,5 +1,5 @@
 """路由模块"""
 
-from . import qa, search, index, health
+from . import health, index, qa, search
 
-__all__ = ["qa", "search", "index", "health"]
+__all__ = ["health", "index", "qa", "search"]

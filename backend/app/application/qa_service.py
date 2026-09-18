@@ -1,6 +1,7 @@
-from typing import Any, AsyncIterator, Dict
+from collections.abc import AsyncIterator
 
 from backend.app.domain.ports import AnswerEnginePort
+from backend.app.domain.qa import AnswerResult, StreamEvent
 
 
 class QAService:
@@ -14,7 +15,7 @@ class QAService:
         query: str,
         top_k: int,
         include_sources: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> AnswerResult:
         return await self._engine.answer(
             query=query,
             top_k=top_k,
@@ -26,7 +27,7 @@ class QAService:
         query: str,
         top_k: int,
         include_sources: bool = True,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> AsyncIterator[StreamEvent]:
         return self._engine.stream_answer(
             query=query,
             top_k=top_k,

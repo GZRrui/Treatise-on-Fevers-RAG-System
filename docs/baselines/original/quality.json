@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source_commit": "37d2c122cee1956c83d99f64996b4f15976053d4",
+  "scope": "deterministic offline baseline; not production model quality",
+  "offline_metrics": {
+    "query_count": 28,
+    "answerable_count": 23,
+    "hard_negative_count": 5,
+    "recall_at_5": 0.0,
+    "mrr_at_10": 0.0,
+    "duplicate_result_rate": 0.0,
+    "hard_negative_false_positive_rate": 1.0,
+    "error_rate": 0.0,
+    "latency_ms": {
+      "p50": 10.663,
+      "p95": 11.543
+    }
+  },
+  "startup": {
+    "storage_initially_empty": true,
+    "behavior": "implicitly-rebuilds-index",
+    "latency_ms": 930.114
+  },
+  "model_call_cost": {
+    "amount": 0,
+    "currency": "CNY",
+    "reason": "Mock providers"
+  },
+  "candidate_online_metrics": {
+    "provenance": "pre-phase high-order workspace; not original-system acceptance",
+    "recall_at_5": 0.529,
+    "mrr_at_10": 0.507,
+    "duplicate_result_rate": 0.0,
+    "hard_negative_false_positive_rate": 0.2
+  },
+  "production_baseline_status": "pending-approved-provider-budget-and-authoritative-dataset"
+}

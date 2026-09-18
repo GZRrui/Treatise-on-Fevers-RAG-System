@@ -3,8 +3,7 @@
 用于查询日志和用户管理（预留）
 """
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, Boolean
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
 from sqlalchemy.sql import func
 
 from .connection import Base

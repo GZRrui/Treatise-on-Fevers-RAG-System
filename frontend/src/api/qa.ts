@@ -1,4 +1,5 @@
 import api from './index'
+import { postSse } from './sse'
 
 export interface QARequest {
   query: string
@@ -35,8 +36,8 @@ export const qaApi = {
     return await api.post('/v1/qa', request)
   },
 
-  askStream: (request: QARequest) => {
+  askStream: (request: QARequest, signal?: AbortSignal) => {
     const baseUrl = import.meta.env.VITE_API_URL || '/api'
-    return new EventSource(`${baseUrl}/v1/qa/stream?query=${encodeURIComponent(request.query)}`)
+    return postSse(`${baseUrl}/v1/qa/stream`, request, signal)
   },
 }

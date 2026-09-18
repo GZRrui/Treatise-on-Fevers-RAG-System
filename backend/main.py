@@ -1,6 +1,6 @@
 """Compatibility entry point for existing deployment commands."""
 
-from backend.app.main import app, create_app, lifespan
+from backend.app.main import app
 
 
 def get_qa_engine():

@@ -1,0 +1,91 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches: [main, "codex/phase-0", "codex/phase-1"]
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONHASHSEED: "20260805"
+  WINDOWS_PYTHON_VERSION: "3.11.9"
+
+jobs:
+  baseline:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The phase-0 snapshot verifier archives ORIGINAL_REF, not only HEAD.
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.WINDOWS_PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Verify Python runtime
+        run: python -c "import os, platform; assert platform.python_version() == os.environ['WINDOWS_PYTHON_VERSION']"
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes -r requirements-dev.txt
+      - name: Compile Python sources
+        run: python -m compileall -q backend config.py evaluation scripts src tests
+      - name: Run offline tests
+        run: python -m pytest -q --basetemp .test-temp/pytest-phase1
+      - name: Run strict type checks
+        run: python -m mypy
+      - name: Run lint checks
+        run: python -m ruff check backend tests scripts
+      - name: Verify data integrity baseline
+        run: python scripts/data_quality.py
+      - name: Verify original baseline commit is available
+        if: github.ref == 'refs/heads/codex/phase-0' || github.head_ref == 'codex/phase-0'
+        run: git cat-file -e "37d2c122cee1956c83d99f64996b4f15976053d4^{commit}"
+      - name: Verify original-system snapshot
+        if: github.ref == 'refs/heads/codex/phase-0' || github.head_ref == 'codex/phase-0'
+        run: python scripts/capture_phase0_baseline.py
+
+  frontend:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.17.0"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Verify npm runtime
+        run: if ((npm.cmd --version).Trim() -ne "10.9.2") { exit 1 }
+      - run: npm.cmd ci --ignore-scripts
+      - run: npm.cmd run test:sse
+      - run: npm.cmd run typecheck
+      - run: npm.cmd run build
+
+  supply-chain:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.WINDOWS_PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.17.0"
+      - run: python -m pip install --require-hashes -r requirements-dev.txt
+      - id: audit
+        continue-on-error: true
+        run: python scripts/supply_chain.py --fail-on-vulnerability
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-supply-chain
+          path: docs/baselines/supply-chain
+      - if: steps.audit.outcome != 'success'
+        run: exit 1

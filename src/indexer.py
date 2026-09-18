@@ -12,19 +12,17 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from llama_index.core import Document, VectorStoreIndex, StorageContext
-from llama_index.core.settings import Settings
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from llama_index.core.vector_stores.simple import SimpleVectorStore
 
 from config import (
     EMBEDDING_MODEL,
     EMBEDDING_DIM,
-    LLM_MODEL,
     VECTOR_STORE_PATH,
     TOP_K,
     SIMILARITY_THRESHOLD,
 )
-from .model_factory import create_embedding_model, create_llm
+from .model_factory import create_embedding_model
 
 
 class Indexer:
@@ -33,25 +31,19 @@ class Indexer:
     def __init__(
         self,
         embedding_model: str = EMBEDDING_MODEL,
-        llm_model: str = LLM_MODEL,
         vector_store_path: str = VECTOR_STORE_PATH,
+        embedding_dimension: int = EMBEDDING_DIM,
+        embedding: Any = None,
     ):
         self.embedding_model = embedding_model
-        self.llm_model = llm_model
+        self.embedding_dimension = embedding_dimension
         self.vector_store_path = Path(vector_store_path)
 
         # 初始化 Embedding 模型
-        self.embedding = create_embedding_model(
+        self.embedding = embedding or create_embedding_model(
             model=embedding_model,
-            dimension=EMBEDDING_DIM,
+            dimension=embedding_dimension,
         )
-
-        # 初始化 LLM（用于后续问答）
-        self.llm = create_llm(model=llm_model)
-
-        # 配置全局设置
-        Settings.embed_model = self.embedding
-        Settings.llm = self.llm
 
         self.index: Optional[VectorStoreIndex] = None
 
@@ -116,6 +108,7 @@ class Indexer:
 
         self.index = VectorStoreIndex.from_documents(
             documents,
+            embed_model=self.embedding,
             show_progress=True,
         )
 
@@ -194,6 +187,7 @@ class Indexer:
         self.index = VectorStoreIndex.from_documents(
             documents,
             storage_context=storage_context,
+            embed_model=self.embedding,
             show_progress=False,
         )
 
@@ -201,42 +195,45 @@ class Indexer:
         return self.index
 
     def get_index(self) -> VectorStoreIndex:
-        """获取索引（每次启动时快速重建）"""
+        """获取已加载或持久化的索引，不在运行时隐式重建。"""
         if self.index is None:
-            # 尝试加载持久化的索引
-            from src.index_loader import IndexLoader
-            try:
-                loader = IndexLoader(str(self.vector_store_path))
-                loader.load()
-                # 测试检索是否工作
-                test_results = loader.retrieve("测试", top_k=1, similarity_threshold=0.0)
-                if test_results:
-                    print("Index loaded from persisted storage")
-                    # 将 loader 包装成可用的索引对象
-                    # 创建一个简化的代理对象
-                    class IndexProxy:
-                        """索引代理 - 使用 IndexLoader"""
-                        def __init__(self, loader):
-                            self._loader = loader
-                            self.index_store = loader.docstore
-                            self.vector_store = loader.vector_store
+            return self.load_existing_index()
+        return self.index
 
-                        def retrieve(self, query, top_k=5, similarity_threshold=0.5):
-                            return self._loader.retrieve(query, top_k, similarity_threshold)
+    def load_existing_index(self) -> Any:
+        """加载持久化索引；缺失或损坏时由调用方处理未就绪状态。"""
+        if not self._index_exists():
+            raise FileNotFoundError(f"Index does not exist: {self.vector_store_path}")
 
-                    self.index = IndexProxy(loader)
-                    print("Using persisted index (fast startup)")
-                    return self.index
-            except Exception as e:
-                print(f"Failed to load persisted index: {e}")
+        from src.index_loader import IndexLoader
 
-            # 如果加载失败，快速重建索引
-            from src.data_loader import DataLoader
-            loader = DataLoader()
-            clean_data = loader.load_clean_data()
-            print("Rebuilding index...")
-            self.index = self.build_index(clean_data, force_rebuild=True)
-            return self.index
+        loader = IndexLoader(
+            str(self.vector_store_path),
+            embedding=self.embedding,
+        )
+        loader.load()
+
+        class IndexProxy:
+            """将现有 IndexLoader 收窄为检索运行时需要的接口。"""
+
+            def __init__(self, index_loader: Any):
+                self._loader = index_loader
+                self.index_store = index_loader.docstore
+                self.vector_store = index_loader.vector_store
+
+            def retrieve(
+                self,
+                query: str,
+                top_k: int = 5,
+                similarity_threshold: float = 0.5,
+            ) -> Any:
+                return self._loader.retrieve(
+                    query,
+                    top_k,
+                    similarity_threshold,
+                )
+
+        self.index = IndexProxy(loader)
         return self.index
 
     def get_index_info(self) -> Dict[str, Any]:
@@ -254,7 +251,7 @@ class Indexer:
                 "vector_count": len(vector_data.get("embedding_dict", {})),
                 "storage_path": str(self.vector_store_path),
                 "embedding_model": self.embedding_model,
-                "embedding_dim": EMBEDDING_DIM,
+                "embedding_dim": self.embedding_dimension,
             }
         except Exception as e:
             return {"exists": True, "error": str(e)}

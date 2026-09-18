@@ -3,10 +3,11 @@
 支持 SQLite/MySQL/PostgreSQL
 """
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from typing import AsyncGenerator
 import logging
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
 
 from config import DATABASE_URL
 
@@ -28,7 +29,7 @@ class Database:
     支持 SQLite、MySQL、PostgreSQL。
     """
 
-    def __init__(self, database_url: str = None):
+    def __init__(self, database_url: str | None = None):
         """
         Args:
             database_url: 数据库连接 URL

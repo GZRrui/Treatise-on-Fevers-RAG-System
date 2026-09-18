@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-09-17",
+  "environment": {
+    "operating_system": "Windows",
+    "python": "3.11.15",
+    "virtual_environment": ".venv311",
+    "embedding_model": "text-embedding-v3",
+    "embedding_dimension": 1536,
+    "llm_model": "qwen-plus"
+  },
+  "index": {
+    "knowledge_base_key": "shanghanlun",
+    "build_id": "20260805T062851Z-63195cbd0b8d",
+    "document_count": 235,
+    "content_sha256": "69376b169619468a7df17c5c8ae3af47d048f144d611b7b602ea2b93e2fefc25",
+    "rebuilt": false,
+    "active_pointer_changed": false
+  },
+  "retrieval": {
+    "query_count": 28,
+    "answerable_count": 23,
+    "hard_negative_count": 5,
+    "recall_at_5": 0.2971,
+    "mrr_at_10": 0.3304,
+    "duplicate_result_rate": 0.0,
+    "hard_negative_false_positive_rate": 0.0,
+    "error_rate": 0.0,
+    "latency_ms": {
+      "p50": 227.715,
+      "p95": 252.575
+    }
+  },
+  "qa": {
+    "sample_count": 3,
+    "success_count": 3,
+    "error_rate": 0.0,
+    "latency_ms": {
+      "p50": 12050.421,
+      "p95": 13782.495
+    },
+    "usage": {
+      "input_tokens": 964,
+      "output_tokens": 1224,
+      "total_tokens": 2188
+    }
+  },
+  "embedding_usage": {
+    "call_count": 31,
+    "total_tokens": 449
+  },
+  "cost": {
+    "currency": "CNY",
+    "approved_maximum": 1.0,
+    "provider_billed_amount": null,
+    "note": "The accepted run was bounded by call count and token usage. DashScope responses did not expose the final billed amount, so no estimate is represented as an invoice."
+  },
+  "diagnostics": {
+    "default_root_artifact_recall_at_5": 0.0,
+    "default_root_artifact_mrr_at_10": 0.0,
+    "required_online_configuration": "Set VECTOR_STORE_PATH to the validated generation vector_store.json until active-generation resolution is implemented in phase 2."
+  },
+  "privacy": {
+    "api_key_recorded": false,
+    "answer_text_recorded": false,
+    "raw_provider_response_recorded": false
+  }
+}

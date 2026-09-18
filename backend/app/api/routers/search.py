@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
 from backend.app.api.dependencies import get_search_service
@@ -11,17 +13,11 @@ router = APIRouter()
 @router.post("/search", response_model=SearchResponse)
 async def search_articles(
     request: SearchRequest,
-    service: SearchService = Depends(get_search_service),
+    service: Annotated[SearchService, Depends(get_search_service)],
 ) -> SearchResponse:
     results = service.search(
         query=request.query,
         top_k=request.top_k,
         category=request.category,
     )
-    return SearchResponse(
-        data={
-            "query": request.query,
-            "total": len(results),
-            "results": results,
-        }
-    )
+    return SearchResponse.from_domain(results)

@@ -25,13 +25,13 @@ class IndexLoader:
         vector_store_path: str,
         embedding_model: str = EMBEDDING_MODEL,
         embedding_dim: int = EMBEDDING_DIM,
+        embedding: Any = None,
     ):
         self.vector_store_path = Path(vector_store_path)
         self.docstore_path = self.vector_store_path.parent / "docstore.json"
 
-        self.embedding = create_embedding_model(
-            model=embedding_model,
-            dimension=embedding_dim,
+        self.embedding = embedding or create_embedding_model(
+            model=embedding_model, dimension=embedding_dim
         )
 
         self.vector_store: Optional[SimpleVectorStore] = None

@@ -1,21 +1,24 @@
+import logging
+
 from backend.app.application.index_service import IndexService
 from backend.app.application.qa_service import QAService
 from backend.app.application.search_service import SearchService
 from backend.app.domain.errors import ApplicationNotReadyError
 from backend.app.infrastructure.rag.legacy_adapter import (
-    LegacyIndexBuilder,
+    LegacyIndexReader,
     LlamaIndexQAEngineAdapter,
 )
-from src.data_loader import DataLoader
 from src.indexer import Indexer
 from src.qa_engine import QAEngine
+
+logger = logging.getLogger(__name__)
 
 
 class ApplicationContainer:
     """Composition root for application dependencies and lifecycle state."""
 
-    def __init__(self):
-        self.index_service: IndexService | None = None
+    def __init__(self, index_service: IndexService | None = None):
+        self.index_service = index_service
         self.qa_service: QAService | None = None
         self.search_service: SearchService | None = None
         self._qa_adapter: LlamaIndexQAEngineAdapter | None = None
@@ -36,17 +39,16 @@ class ApplicationContainer:
 
     async def initialize(self) -> None:
         if self.index_service is None:
-            loader = DataLoader()
-            indexer = Indexer()
-            self.index_service = IndexService(LegacyIndexBuilder(loader, indexer))
-        index = await self.index_service.initialize()
+            self.index_service = IndexService(LegacyIndexReader(Indexer()))
+        try:
+            index = await self.index_service.initialize()
+        except (FileNotFoundError, ValueError) as exc:
+            logger.warning(
+                "Application started without a ready index: %s",
+                exc,
+            )
+            return
         self._replace_qa_service(index)
-
-    async def rebuild_index(self, force: bool = False):
-        index_service = self.require_index_service()
-        index_status = await index_service.build(force=force)
-        self._replace_qa_service(index_service.current_index)
-        return index_status
 
     def require_qa_service(self) -> QAService:
         if self.qa_service is None:
@@ -63,7 +65,7 @@ class ApplicationContainer:
             raise ApplicationNotReadyError("Search service is not initialized")
         return self.search_service
 
-    def _replace_qa_service(self, index) -> None:
+    def _replace_qa_service(self, index: object) -> None:
         adapter = LlamaIndexQAEngineAdapter(QAEngine(index))
         self._qa_adapter = adapter
         self.qa_service = QAService(adapter)

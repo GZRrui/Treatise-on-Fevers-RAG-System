@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import Request
 
 from backend.app.application.index_service import IndexService
@@ -7,7 +9,7 @@ from backend.app.container import ApplicationContainer
 
 
 def get_container(request: Request) -> ApplicationContainer:
-    return request.app.state.container
+    return cast(ApplicationContainer, request.app.state.container)
 
 
 def get_qa_service(request: Request) -> QAService:

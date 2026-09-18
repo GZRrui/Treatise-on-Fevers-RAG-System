@@ -3,9 +3,9 @@
 简单的内存缓存，生产环境建议使用 Redis
 """
 
-from typing import Any, Optional
-import time
 import logging
+import time
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class SimpleCache:
         self._cache = {}
         self._expiry = {}
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """
         获取缓存值
 
@@ -49,7 +49,7 @@ class SimpleCache:
 
         return self._cache[key]
 
-    def set(self, key: str, value: Any, ttl: int = None) -> None:
+    def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """
         设置缓存值
 

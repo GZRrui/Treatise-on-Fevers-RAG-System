@@ -1,30 +1,27 @@
 import asyncio
-from typing import Any, Dict
 
-from backend.app.domain.ports import IndexBuilderPort
+from backend.app.domain.indexing import IndexStatus
+from backend.app.domain.ports import IndexReaderPort
 
 
 class IndexService:
     """Application use cases for loading and rebuilding the knowledge index."""
 
-    def __init__(self, builder: IndexBuilderPort):
-        self._builder = builder
+    def __init__(self, reader: IndexReaderPort):
+        self._reader = reader
         self._lock = asyncio.Lock()
-        self._current_index: Any = None
+        self._current_index: object | None = None
 
     @property
-    def current_index(self) -> Any:
+    def current_index(self) -> object | None:
         return self._current_index
 
-    async def initialize(self) -> Any:
+    async def initialize(self) -> object:
         async with self._lock:
-            self._current_index = await asyncio.to_thread(self._builder.load_or_build)
+            self._current_index = await asyncio.to_thread(
+                self._reader.load_existing
+            )
             return self._current_index
 
-    async def build(self, force: bool = False) -> Dict[str, Any]:
-        async with self._lock:
-            self._current_index = await asyncio.to_thread(self._builder.build, force)
-            return self._builder.status()
-
-    def status(self) -> Dict[str, Any]:
-        return self._builder.status()
+    def status(self) -> IndexStatus:
+        return self._reader.status()
